@@ -1,4 +1,4 @@
-// Data should be in the following columns: TaskID, Stage, Task, Type (Task or Decision), Input, Output, OwnerPersona, DependsOn
+// Data format TaskID	Stage	Task	Type	Input	Output	OwnerPersona	DependsOn, end with ###END_OF_DATA###
 interface DATARANGE {
   startIndex: Number;
   endIndex: Number;
@@ -158,20 +158,21 @@ function createSwimlaneDiagram(sheet: ExcelScript.Worksheet, datarange: DATARANG
     }
     if (isList(dependsOnString)) {
       let connections = dependsOnString.split(',')
-      connections.forEach(conn => {
-        if(isNumber(conn)) {
-          if(shapesMap[conn]) {
-            let fromShape: ExcelScript.Shape = shapesMap[conn]
-            connectShapes(sheet, fromShape, 3, shape, 1, "")
-          }
-        }
-        if(isDecisionString(conn)) {
-          let arr = dependsOnString.split(':')
-          let fromShape: ExcelScript.Shape = shapesMap[arr[0]]
-          let text = arr[1]
-          connectShapes(sheet, fromShape, 3, shape, 1, text)
-        }
-      })
+      parseDependencies(sheet, connections, shapesMap, shape)
+      // connections.forEach(conn => {
+      //   if(isNumber(conn)) {
+      //     if(shapesMap[conn]) {
+      //       let fromShape: ExcelScript.Shape = shapesMap[conn]
+      //       connectShapes(sheet, fromShape, 3, shape, 1, "")
+      //     }
+      //   }
+      //   if(isDecisionString(conn)) {
+      //     let arr = dependsOnString.split(':')
+      //     let fromShape: ExcelScript.Shape = shapesMap[arr[0]]
+      //     let text = arr[1]
+      //     connectShapes(sheet, fromShape, 3, shape, 1, text)
+      //   }
+      // });
     }
     
   }
@@ -217,4 +218,21 @@ function connectShapes(sheet:ExcelScript.Worksheet, fromShape: ExcelScript.Shape
   arrow.getLine().setEndArrowheadStyle(ExcelScript.ArrowheadStyle.open)
   arrow.getLine().connectBeginShape(fromShape, fromSite)
   arrow.getLine().connectEndShape(toShape, toSite)
+}
+
+function parseDependencies(sheet: ExcelScript.Worksheet, connections: Array<string>, shapesMap:{}, shape:ExcelScript.Shape){
+     connections.forEach(conn => {
+        if(isNumber(conn)) {
+          if(shapesMap[conn]) {
+            let fromShape: ExcelScript.Shape = shapesMap[conn]
+            connectShapes(sheet, fromShape, 3, shape, 1, "")
+          }
+        }
+        if(isDecisionString(conn)) {
+          let arr = conn.split(':')
+          let fromShape: ExcelScript.Shape = shapesMap[arr[0]]
+          let text = arr[1]
+          connectShapes(sheet, fromShape, 3, shape, 1, text)
+        }
+      });
 }
