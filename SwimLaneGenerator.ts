@@ -218,6 +218,14 @@ function connectShapes(sheet:ExcelScript.Worksheet, fromShape: ExcelScript.Shape
   arrow.getLine().setEndArrowheadStyle(ExcelScript.ArrowheadStyle.open)
   arrow.getLine().connectBeginShape(fromShape, fromSite)
   arrow.getLine().connectEndShape(toShape, toSite)
+  if(text != "") {
+    let txtTop = +arrow.getLine().getShape().getTop() + 5
+    let txtLeft = arrow.getLine().getShape().getLeft() + 15
+    console.log(location)
+    let txtBox = sheet.addTextBox(text)
+    txtBox.setTop(txtTop)
+    txtBox.setLeft(txtLeft)
+  }
 }
 
 function parseDependencies(sheet: ExcelScript.Worksheet, connections: Array<string>, shapesMap:{}, shape:ExcelScript.Shape){
